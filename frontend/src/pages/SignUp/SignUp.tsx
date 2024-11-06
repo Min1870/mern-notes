@@ -8,6 +8,7 @@ const SignUp = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
 
   const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -25,6 +26,10 @@ const SignUp = () => {
 
     if (!password) {
       setError("Please enter the password");
+      return;
+    }
+    if (!confirmPassword) {
+      setError("Please enter the confirm password");
       return;
     }
 
@@ -53,6 +58,13 @@ const SignUp = () => {
             />
             <PasswordInput
               value={password}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setPassword(e.target.value)
+              }
+            />
+            <PasswordInput
+              placeholder="Confirm Password"
+              value={confirmPassword}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                 setPassword(e.target.value)
               }

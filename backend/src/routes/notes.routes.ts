@@ -2,21 +2,19 @@ import express from "express";
 import {
   createNote,
   deleteNote,
+  editNote,
   getNote,
   getNotes,
-  updateNote,
 } from "../controllers/notes.controller";
+import { authenticateToken } from "../utils";
 
 const router = express.Router();
 
-router.get("/", getNotes);
-
-router.get("/:noteId", getNote);
-
-router.post("/", createNote);
-
-router.patch("/:noteId", updateNote);
-
-router.delete("/:noteId", deleteNote);
+router.get("/", authenticateToken, getNotes);
+router.get("/:noteId", authenticateToken, getNote);
+router.post("/", authenticateToken, createNote);
+router.patch("/:noteId", authenticateToken, editNote);
+// router.patch("/:noteId", authenticateToken, pinNote);
+router.delete("/:noteId", authenticateToken, deleteNote);
 
 export default router;
