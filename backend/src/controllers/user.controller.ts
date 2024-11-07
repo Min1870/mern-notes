@@ -21,7 +21,7 @@ export const getUsers: RequestHandler = async (
       throw createHttpError(401, "User not authenticated.");
     }
     const filteredUsers = await userModel
-      .find({ _id: { $ne: user?._id } })
+      .findOne({ _id: user._id })
       .select("-password");
 
     res.status(200).json(filteredUsers);

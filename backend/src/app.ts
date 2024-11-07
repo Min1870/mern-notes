@@ -17,7 +17,7 @@ app.use(cors({ origin: "*" }));
 
 app.use("/api/notes", notesRoutes);
 app.use("/api/auth", authRoutes);
-app.use("/api/users", userRoutes);
+app.use("/api/user", userRoutes);
 
 app.use((req, res, next) => {
   next(createHttpError(404, "Endpoint not found"));

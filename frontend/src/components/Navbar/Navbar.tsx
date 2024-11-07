@@ -1,13 +1,14 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ProfileInfo from "../Cards/ProfileInfo";
 import SearchBar from "../SearchBar/SearchBar";
-import { useState } from "react";
 
 const Navbar = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
 
   const onLogout = () => {
+    localStorage.removeItem("token");
     navigate("/login");
   };
 

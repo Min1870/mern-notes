@@ -1,9 +1,10 @@
+import { useEffect, useState } from "react";
 import { MdAdd } from "react-icons/md";
-import NoteCard from "../../components/Cards/NoteCard";
-import Navbar from "../../components/Navbar/Navbar";
-import AddEditNotes from "./AddEditNotes";
-import { useState } from "react";
 import Modal from "react-modal";
+import { useNavigate } from "react-router-dom";
+import NoteCard from "../../components/Cards/NoteCard";
+import axiosInstance from "../../utils/axiosInstance";
+import AddEditNotes from "./AddEditNotes";
 
 const Home = () => {
   const [openAddEditModal, setOpenAddEditModal] = useState({
@@ -12,10 +13,25 @@ const Home = () => {
     data: null,
   });
 
+  const navigate = useNavigate();
+
+  const getUserInfo = async () => {
+    try {
+      await axiosInstance.get("/api/user");
+    } catch (error: any) {
+      if (error.response.status === 401) {
+        localStorage.clear();
+        navigate("/login");
+      }
+    }
+  };
+
+  useEffect(() => {
+    getUserInfo();
+  }, []);
+
   return (
     <>
-      <Navbar />
-
       <div className="max-w-[1200px] mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
           <NoteCard
@@ -52,8 +68,8 @@ const Home = () => {
         className="w-[40%] max-h-3/4 bg-white rounded-md mx-auto mt-14 p-5 overflow-scroll"
       >
         <AddEditNotes
-        type={openAddEditModal.type}
-        noteData={openAddEditModal.data}
+          type={openAddEditModal.type}
+          noteData={openAddEditModal.data}
           onClose={() => {
             setOpenAddEditModal({ isShown: false, type: "add", data: null });
           }}

@@ -2,11 +2,20 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Home from "./pages/Home/Home";
 import Login from "./pages/Login/Login";
 import SignUp from "./pages/SignUp/SignUp";
+import { UserContextProvider } from "./context/UserContext";
+import Layout from "./pages/Home/Layout";
 
 const router = createBrowserRouter([
   {
-    path: "/dashboard",
-    element: <Home />,
+    path: "/",
+    element: <Layout />,
+    children: [
+      {
+        path: "/dashboard",
+        element: <Home />,
+        index: true,
+      },
+    ],
   },
   {
     path: "/login",
@@ -20,9 +29,9 @@ const router = createBrowserRouter([
 
 const App = () => {
   return (
-    <div>
-      <RouterProvider router={router} />
-    </div>
+    <UserContextProvider>
+      <RouterProvider router={router} />;
+    </UserContextProvider>
   );
 };
 

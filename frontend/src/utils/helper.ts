@@ -3,7 +3,7 @@ export const validateEmail = (email: string) => {
   return regex.test(email);
 };
 
-export const getInitials = (name: string) => {
+export const getInitials = (name: string | undefined) => {
   if (!name) return "";
 
   const words = name

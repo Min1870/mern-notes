@@ -1,10 +1,13 @@
-import { Link } from "react-router-dom";
-import Navbar from "../../components/Navbar/Navbar";
-import PasswordInput from "../../components/Input/PasswordInput";
 import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import PasswordInput from "../../components/Input/PasswordInput";
+import axiosInstance from "../../utils/axiosInstance";
 import { validateEmail } from "../../utils/helper";
+import toast from "react-hot-toast";
 
 const Login = () => {
+  const navigate = useNavigate();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -22,16 +25,33 @@ const Login = () => {
       return;
     }
     setError("");
+
+    try {
+      const response = await axiosInstance.post("/api/auth/login", {
+        email,
+        password,
+      });
+
+      if (response.data && response.data.accessToken) {
+        localStorage.setItem("token", response.data.accessToken);
+        toast.success(response.data.message);
+        // toast.success()
+        navigate("/dashboard");
+      }
+    } catch (error: any) {
+      if (error.response) {
+        setError(error.response.data.error);
+      }
+    }
   };
   return (
     <>
-      <Navbar />
       <div className="flex items-center justify-center mt-28">
         <div className="w-96 border rounded bg-white px-7 py-10">
           <form onSubmit={handleLogin}>
             <h4 className="text-2xl mb-7">Login</h4>
             <input
-              type="text"
+              type="email"
               placeholder="Email"
               className="input-box"
               value={email}
