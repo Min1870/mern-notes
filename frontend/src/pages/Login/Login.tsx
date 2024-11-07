@@ -26,7 +26,7 @@ const Login = () => {
     }
     setError("");
 
-    try {
+  try {
       const response = await axiosInstance.post("/api/auth/login", {
         email,
         password,
@@ -35,7 +35,6 @@ const Login = () => {
       if (response.data && response.data.accessToken) {
         localStorage.setItem("token", response.data.accessToken);
         toast.success(response.data.message);
-        // toast.success()
         navigate("/dashboard");
       }
     } catch (error: any) {

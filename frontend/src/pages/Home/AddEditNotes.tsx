@@ -1,21 +1,63 @@
 import { useState } from "react";
 import { MdClose } from "react-icons/md";
 import TagInput from "../../components/Input/TagInput";
+import axiosInstance from "../../utils/axiosInstance";
+import { NotesType } from "./Home";
+import toast from "react-hot-toast";
 
 interface AddEditNotesProps {
-  noteData: null;
+  noteData: NotesType | null;
   type: string;
   onClose: () => void;
+  getNotes: () => void;
 }
 
-const AddEditNotes = ({ noteData, type, onClose }: AddEditNotesProps) => {
-  const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
-  const [tags, setTags] = useState<string[]>([]);
+const AddEditNotes = ({
+  noteData,
+  type,
+  onClose,
+  getNotes,
+}: AddEditNotesProps) => {
+  const [title, setTitle] = useState(noteData?.title || "");
+  const [content, setContent] = useState(noteData?.content || "");
+  const [tags, setTags] = useState<string[]>(noteData?.tags || []);
   const [error, setError] = useState("");
 
-  const addNewNote = async () => {};
-  const editNote = async () => {};
+  const addNewNote = async () => {
+    try {
+      const response = await axiosInstance.post("/api/notes", {
+        title,
+        content,
+        tags,
+      });
+      console.log(response.data);
+      if (response.data) {
+        getNotes();
+        onClose();
+        toast.success("Note added successfully!");
+      }
+    } catch (error: any) {
+      setError(error.response.data.error);
+    }
+  };
+  const editNote = async () => {
+    const noteId = noteData?._id;
+    try {
+      const response = await axiosInstance.patch("/api/notes/" + noteId, {
+        title,
+        content,
+        tags,
+      });
+
+      if (response.data) {
+        getNotes();
+        onClose();
+        toast.success("Note edited successfully!");
+      }
+    } catch (error: any) {
+      setError(error.response.data.error);
+    }
+  };
 
   const handleAddNote = () => {
     if (!title) {
@@ -37,7 +79,7 @@ const AddEditNotes = ({ noteData, type, onClose }: AddEditNotesProps) => {
   return (
     <div className="relative">
       <button
-        className="w-10 h-10 rounded-full items-center justify-center absolute -top-3 -right-3 hover:bg-slate-50"
+        className="w-10 h-10 rounded-full items-center justify-center absolute flex -top-3 -right-3 hover:bg-slate-50"
         onClick={onClose}
       >
         <MdClose />
@@ -82,7 +124,7 @@ const AddEditNotes = ({ noteData, type, onClose }: AddEditNotesProps) => {
         className="btn-primary font-medium mt-5 p-3"
         onClick={handleAddNote}
       >
-        ADD
+        {type === "edit" ? "UPDATE" : "ADD"}
       </button>
     </div>
   );

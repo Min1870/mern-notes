@@ -25,21 +25,20 @@ export const UserContextProvider = ({ children }: PropsWithChildren) => {
   const [userInfo, setUserInfo] = useState<UserContext | null>(null);
   // const navigate = useNavigate();
 
-  useEffect(() => {
-    const getUserInfo = async () => {
-      try {
-        const response = await axiosInstance.get("/api/user");
-        if (response.data) {
-          setUserInfo(response.data);
-        }
-      } catch (error: any) {
-        if (error.response.status === 401) {
-          localStorage.clear();
-          // navigate("/login");
-        }
+  const getUserInfo = async () => {
+    try {
+      const response = await axiosInstance.get("/api/user");
+      if (response.data) {
+        setUserInfo(response.data);
       }
-    };
-
+    } catch (error: any) {
+      if (error.response.status === 401) {
+        localStorage.clear();
+        // navigate("/login");
+      }
+    }
+  };
+  useEffect(() => {
     getUserInfo();
   }, []);
 

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import { MdAdd } from "react-icons/md";
 import Modal from "react-modal";
 import { useNavigate } from "react-router-dom";
@@ -6,14 +7,34 @@ import NoteCard from "../../components/Cards/NoteCard";
 import axiosInstance from "../../utils/axiosInstance";
 import AddEditNotes from "./AddEditNotes";
 
+export interface NotesType {
+  _id: string;
+  title: string;
+  date: string;
+  content: string;
+  tags: string[];
+  isPinned: boolean;
+  createdOn: string;
+}
+
 const Home = () => {
-  const [openAddEditModal, setOpenAddEditModal] = useState({
+  const [openAddEditModal, setOpenAddEditModal] = useState<{
+    isShown: boolean;
+    type: "add" | "edit";
+    data: NotesType | null;
+  }>({
     isShown: false,
     type: "add",
     data: null,
   });
 
+  const [notes, setNotes] = useState<NotesType[] | undefined>(undefined);
+
   const navigate = useNavigate();
+
+  const handleEdit = (noteDetails: NotesType) => {
+    setOpenAddEditModal({ isShown: true, data: noteDetails, type: "edit" });
+  };
 
   const getUserInfo = async () => {
     try {
@@ -26,7 +47,33 @@ const Home = () => {
     }
   };
 
+  const getNotes = async () => {
+    try {
+      const response = await axiosInstance.get("/api/notes");
+      setNotes(response.data);
+    } catch (error: any) {
+      toast.error(error.response.data.error);
+    }
+  };
+
+  const deleteNote = async (data: NotesType) => {
+    const noteId = data?._id;
+
+    try {
+      const response = await axiosInstance.delete("/api/notes/" + noteId);
+
+      if (response.data && !response.data.error) {
+        toast.success("Note deleted successfully!");
+        getNotes();
+      }
+    } catch (error: any) {
+      console.log(error.response.data.error);
+      toast.error(error.response.data.error);
+    }
+  };
+
   useEffect(() => {
+    getNotes();
     getUserInfo();
   }, []);
 
@@ -34,16 +81,19 @@ const Home = () => {
     <>
       <div className="max-w-[1200px] mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
-          <NoteCard
-            title="Meeting on 15 Dec"
-            date="11 Dec 2024"
-            content="loremjds fjasd fjaiasdjfijsdfjkasjdfkjasdkfjkasdjfkj"
-            tags="#Meeting"
-            isPinned={true}
-            onEdit={() => {}}
-            onDelete={() => {}}
-            onPinNote={() => {}}
-          />
+          {notes?.map((note) => (
+            <NoteCard
+              key={note._id}
+              title={note.title}
+              date={note.createdOn}
+              content={note.content}
+              tags={note.tags}
+              isPinned={note.isPinned}
+              onEdit={() => handleEdit(note)}
+              onDelete={() => deleteNote(note)}
+              onPinNote={() => {}}
+            />
+          ))}
         </div>
       </div>
 
@@ -73,6 +123,7 @@ const Home = () => {
           onClose={() => {
             setOpenAddEditModal({ isShown: false, type: "add", data: null });
           }}
+          getNotes={getNotes}
         />
       </Modal>
     </>
