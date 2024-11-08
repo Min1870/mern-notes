@@ -188,6 +188,38 @@ export const deleteNote: RequestHandler = async (
   }
 };
 
+export const searchNote: RequestHandler = async (
+  req: AuthenticatedRequest,
+  res,
+  next
+) => {
+  const user = req.user;
+  const { query } = req.query as { query?: string };
+
+  if (!query) {
+    res.status(400).json({ error: true, message: "Search query is required" });
+    return;
+  }
+
+  try {
+    const matchingNote = await Notes.find({
+      userId: user?._id,
+      $or: [
+        { title: { $regex: new RegExp(query, "i") } },
+        { content: { $regex: new RegExp(query, "i") } },
+      ],
+    });
+
+    res.json({
+      error: false,
+      notes: matchingNote,
+      message: "Note Matched!",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // export const pinNote: RequestHandler = async (
 //   req: AuthenticatedRequest,
 //   res,

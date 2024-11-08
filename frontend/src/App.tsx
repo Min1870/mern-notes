@@ -1,21 +1,13 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { UserContextProvider } from "./context/UserContext";
 import Home from "./pages/Home/Home";
 import Login from "./pages/Login/Login";
 import SignUp from "./pages/SignUp/SignUp";
-import { UserContextProvider } from "./context/UserContext";
-import Layout from "./pages/Home/Layout";
 
 const router = createBrowserRouter([
   {
-    path: "/",
-    element: <Layout />,
-    children: [
-      {
-        path: "/dashboard",
-        element: <Home />,
-        index: true,
-      },
-    ],
+    path: "/dashboard",
+    element: <Home />,
   },
   {
     path: "/login",
@@ -30,7 +22,7 @@ const router = createBrowserRouter([
 const App = () => {
   return (
     <UserContextProvider>
-      <RouterProvider router={router} />;
+      <RouterProvider router={router} />
     </UserContextProvider>
   );
 };

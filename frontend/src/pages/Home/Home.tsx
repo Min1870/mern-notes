@@ -3,9 +3,12 @@ import toast from "react-hot-toast";
 import { MdAdd } from "react-icons/md";
 import Modal from "react-modal";
 import { useNavigate } from "react-router-dom";
+import addNoteImg from "../../assets/images/add-note.svg";
 import NoteCard from "../../components/Cards/NoteCard";
+import EmptyCard from "../../components/EmptyCard/EmptyCard";
 import axiosInstance from "../../utils/axiosInstance";
 import AddEditNotes from "./AddEditNotes";
+import Navbar from "../../components/Navbar/Navbar";
 
 export interface NotesType {
   _id: string;
@@ -29,6 +32,7 @@ const Home = () => {
   });
 
   const [notes, setNotes] = useState<NotesType[] | undefined>(undefined);
+  const [isSearch, setIsSearch] = useState(false);
 
   const navigate = useNavigate();
 
@@ -60,15 +64,27 @@ const Home = () => {
     const noteId = data?._id;
 
     try {
-      const response = await axiosInstance.delete("/api/notes/" + noteId);
-
-      if (response.data && !response.data.error) {
-        toast.success("Note deleted successfully!");
-        getNotes();
-      }
+      await axiosInstance.delete("/api/notes/" + noteId);
+      toast.success("Note deleted successfully!");
+      getNotes();
     } catch (error: any) {
       console.log(error.response.data.error);
       toast.error(error.response.data.error);
+    }
+  };
+
+  const noSearchNote = async (query: string) => {
+    try {
+      const response = await axiosInstance.get("/api/notes/search/note", {
+        params: { query },
+      });
+      console.log(response.data);
+      if (response.data) {
+        setIsSearch(true);
+        setNotes(response.data.notes);
+      }
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -79,22 +95,30 @@ const Home = () => {
 
   return (
     <>
+      <Navbar onSearchNote={noSearchNote} />
       <div className="max-w-[1200px] mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
-          {notes?.map((note) => (
-            <NoteCard
-              key={note._id}
-              title={note.title}
-              date={note.createdOn}
-              content={note.content}
-              tags={note.tags}
-              isPinned={note.isPinned}
-              onEdit={() => handleEdit(note)}
-              onDelete={() => deleteNote(note)}
-              onPinNote={() => {}}
-            />
-          ))}
-        </div>
+        {notes!?.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
+            {notes?.map((note) => (
+              <NoteCard
+                key={note._id}
+                title={note.title}
+                date={note.createdOn}
+                content={note.content}
+                tags={note.tags}
+                isPinned={note.isPinned}
+                onEdit={() => handleEdit(note)}
+                onDelete={() => deleteNote(note)}
+                onPinNote={() => {}}
+              />
+            ))}
+          </div>
+        ) : (
+          <EmptyCard
+            imgSrc={addNoteImg}
+            message="Start creating your first note! Click the 'Add' button to write down your thoughts, ideas, and reminders.Let's get started."
+          />
+        )}
       </div>
 
       <button
